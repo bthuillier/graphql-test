@@ -2,7 +2,7 @@ package com.bthuillier.music
 
 import cats.effect._
 import cats.syntax.either._
-import com.bthuillier.music.graphql.Mutation
+import com.bthuillier.music.graphql.{MusicServiceContext, MusicServiceFetchers, Mutation}
 import com.bthuillier.music.models.{schemadefinition, Album, Artist, Track}
 import com.bthuillier.music.models.schemadefinition.Query
 import com.bthuillier.music.service.MusicService
@@ -65,7 +65,13 @@ object MusicServer extends StreamApp[IO] with Http4sDsl[IO] {
 
     } yield QueryParser.parse(query).map { exc =>
       Executor
-        .execute(MusicCatalogSchema, exc, new MusicService(artists), variables = vars, operationName = operation, deferredResolver = schemadefinition.resolver)
+        .execute(
+          MusicCatalogSchema,
+          exc,
+          MusicServiceContext(new MusicService(artists), MusicServiceFetchers),
+          variables = vars,
+          operationName = operation,
+          deferredResolver = schemadefinition.resolver)
     }
 
     Either.fromTry(parsingResult.getOrElse(Failure(new Exception("lol"))))
