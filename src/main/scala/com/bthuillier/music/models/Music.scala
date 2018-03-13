@@ -1,4 +1,4 @@
-package com.bthuillier.catalog.models
+package com.bthuillier.music.models
 
 
 final case class Artist(id: String, name: String, albums: List[Album])

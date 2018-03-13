@@ -1,10 +1,11 @@
-package com.bthuillier.catalog
+package com.bthuillier.music
 
 import cats.effect._
 import cats.syntax.either._
-import com.bthuillier.catalog.models.{schemadefinition, Album, Artist, Track}
-import com.bthuillier.catalog.models.schemadefinition.{Mutation, Query}
-import com.bthuillier.catalog.service.MusicCatalogService
+import com.bthuillier.music.graphql.Mutation
+import com.bthuillier.music.models.{schemadefinition, Album, Artist, Track}
+import com.bthuillier.music.models.schemadefinition.Query
+import com.bthuillier.music.service.MusicService
 import fs2.StreamApp
 import io.circe._
 import org.http4s._
@@ -23,7 +24,7 @@ import scala.util.Failure
 
 object MusicServer extends StreamApp[IO] with Http4sDsl[IO] {
 
-  val MusicCatalogSchema = Schema(Query, Some(Mutation))
+  val MusicCatalogSchema = Schema(Query, Some(Mutation.Mutation))
 
   private val artists: mutable.HashMap[String, Artist] = mutable.HashMap(
     "1" -> Artist("1", "Black Dahlia Murder", List(
@@ -64,7 +65,7 @@ object MusicServer extends StreamApp[IO] with Http4sDsl[IO] {
 
     } yield QueryParser.parse(query).map { exc =>
       Executor
-        .execute(MusicCatalogSchema, exc, new MusicCatalogService(artists), variables = vars, operationName = operation, deferredResolver = schemadefinition.resolver)
+        .execute(MusicCatalogSchema, exc, new MusicService(artists), variables = vars, operationName = operation, deferredResolver = schemadefinition.resolver)
     }
 
     Either.fromTry(parsingResult.getOrElse(Failure(new Exception("lol"))))

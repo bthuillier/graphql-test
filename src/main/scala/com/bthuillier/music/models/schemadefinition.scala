@@ -1,6 +1,6 @@
-package com.bthuillier.catalog.models
+package com.bthuillier.music.models
 
-import com.bthuillier.catalog.service.MusicCatalogService
+import com.bthuillier.music.service.MusicService
 import sangria.execution.deferred.{DeferredResolver, Fetcher, HasId}
 import sangria.macros.derive._
 import sangria.schema._
@@ -12,13 +12,13 @@ import scala.concurrent.Future
 object schemadefinition {
 
   object fetcher {
-    val artists: Fetcher[MusicCatalogService, Artist, Artist, String] =
-      Fetcher((ctx: MusicCatalogService, ids: Seq[String]) ⇒
+    val artists: Fetcher[MusicService, Artist, Artist, String] =
+      Fetcher((ctx: MusicService, ids: Seq[String]) ⇒
         Future.successful(ids.map(ctx.getArtist).map(_.get))
       )(HasId(_.id))
 
-    val albums: Fetcher[MusicCatalogService, Album, Album, String] =
-      Fetcher((ctx: MusicCatalogService, ids: Seq[String]) ⇒
+    val albums: Fetcher[MusicService, Album, Album, String] =
+      Fetcher((ctx: MusicService, ids: Seq[String]) ⇒
         Future.successful(ids.map(ctx.getAlbum).map(_.get))
       )(HasId(_.id))
   }
@@ -78,11 +78,11 @@ object schemadefinition {
 
   }
 
-  val resolver: DeferredResolver[MusicCatalogService] =
+  val resolver: DeferredResolver[MusicService] =
     DeferredResolver.fetchers(fetcher.artists)
 
-  val Query: ObjectType[MusicCatalogService, Unit] = ObjectType[MusicCatalogService, Unit](
-    "Query", fields[MusicCatalogService, Unit](
+  val Query: ObjectType[MusicService, Unit] = ObjectType[MusicService, Unit](
+    "Query", fields[MusicService, Unit](
       Field("artist", OptionType(models.ArtistResponseType),
         arguments = arg.ArtistID :: Nil,
         resolve = ctx ⇒ ctx.ctx.getArtist(ctx.arg(arg.ArtistID))),
@@ -92,18 +92,6 @@ object schemadefinition {
       Field("track", OptionType(models.TrackResponseType),
         arguments = arg.TrackID :: Nil,
         resolve = ctx ⇒ ctx.ctx.getTrack(ctx.arg(arg.TrackID)))
-    ))
-
-  val Mutation: ObjectType[MusicCatalogService, Unit] = ObjectType[MusicCatalogService, Unit](
-    "Mutation", fields[MusicCatalogService, Unit](
-      Field("addTrack", OptionType(StringType),
-        arguments = arg.TrackInput :: Nil,
-        resolve = ctx => ctx.ctx.addTrack(ctx.arg(arg.TrackInput))
-      ),
-      Field("addAlbum", OptionType(StringType),
-        arguments = arg.AlbumInput :: Nil,
-        resolve = ctx => ctx.ctx.addAlbum(ctx.arg(arg.AlbumInput))
-      )
     ))
 
 

@@ -20,5 +20,5 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-generic" % "0.9.1",
       "io.circe" %% "circe-parser" % "0.9.1"
     )
-  )
+  ).enablePlugins(JavaAppPackaging)
 

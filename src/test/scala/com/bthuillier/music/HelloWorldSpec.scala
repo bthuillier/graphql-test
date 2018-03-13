@@ -1,4 +1,4 @@
-package com.bthuillier.catalog
+package com.bthuillier.music
 
 import cats.effect.IO
 import org.http4s._

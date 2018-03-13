@@ -1,9 +1,10 @@
-package com.bthuillier.catalog.service
+package com.bthuillier.music.service
 
-import com.bthuillier.catalog.models.{Album, Artist, Track}
+import com.bthuillier.music.models.{Album, Artist, Track}
+
 import scala.collection.mutable
 
-class MusicCatalogService(artists: mutable.HashMap[String, Artist]) {
+class MusicService(artists: mutable.HashMap[String, Artist]) {
 
   def getArtist(id: String): Option[Artist] =
     artists.get(id)
