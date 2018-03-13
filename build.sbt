@@ -15,7 +15,10 @@ lazy val root = (project in file("."))
       "org.sangria-graphql" %% "sangria-circe" % "1.2.1",
       "org.sangria-graphql" %% "sangria" % "1.4.0",
       "org.specs2"     %% "specs2-core"          % Specs2Version % "test",
-      "ch.qos.logback"  %  "logback-classic"     % LogbackVersion
+      "ch.qos.logback"  %  "logback-classic"     % LogbackVersion,
+      "io.circe" %% "circe-core" % "0.9.1",
+      "io.circe" %% "circe-generic" % "0.9.1",
+      "io.circe" %% "circe-parser" % "0.9.1"
     )
   )
 

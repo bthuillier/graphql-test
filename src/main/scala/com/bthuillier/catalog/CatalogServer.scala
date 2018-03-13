@@ -2,7 +2,8 @@ package com.bthuillier.catalog
 
 import cats.effect._
 import cats.syntax.either._
-import com.bthuillier.catalog.models.graphql
+import com.bthuillier.catalog.models.{schemadefinition, Album, Artist, Track}
+import com.bthuillier.catalog.models.schemadefinition.{Mutation, Query}
 import com.bthuillier.catalog.service.MusicCatalogService
 import fs2.StreamApp
 import io.circe._
@@ -13,12 +14,36 @@ import org.http4s.server.blaze.BlazeBuilder
 import sangria.execution.Executor
 import sangria.marshalling.circe._
 import sangria.parser.QueryParser
+import sangria.schema.Schema
 
+import scala.collection.mutable
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Failure
 
 object MusicServer extends StreamApp[IO] with Http4sDsl[IO] {
+
+  val MusicCatalogSchema = Schema(Query, Some(Mutation))
+
+  private val artists: mutable.HashMap[String, Artist] = mutable.HashMap(
+    "1" -> Artist("1", "Black Dahlia Murder", List(
+      Album("1", "Nocturnal", List(
+        Track("1", "Everything Went Black", 197, Seq("1"), "1"),
+        Track("2", "What a Horrible Night to Have a Curse", 241, Seq("1"), "1"),
+        Track("3", "Virally Yours", 183, Seq("1"), "1"),
+        Track("4", "I Worship Only What You Bleed", 120, Seq("1"), "1"),
+        Track("5", "Nocturnal", 193, Seq("1"), "1"),
+        Track("6", "Deathmask Divine", 217, Seq("1"), "1"),
+        Track("7", "Of Darkness Spawned", 202, Seq("1"), "1"),
+        Track("8", "Climactic Degradation", 219, Seq("1"), "1"),
+        Track("9", "To a Breathless Oblivion", 297, Seq("1"), "1"),
+        Track("10", "Warborn", 280, Seq("1"), "1")
+      ), "1")
+    )
+    )
+  )
+
+
   val service: HttpService[IO] = HttpService[IO] {
     case req @ GET -> Root =>
       StaticFile.fromResource("/graphiql.html", Some(req)).getOrElseF(NotFound())
@@ -39,7 +64,7 @@ object MusicServer extends StreamApp[IO] with Http4sDsl[IO] {
 
     } yield QueryParser.parse(query).map { exc =>
       Executor
-        .execute(graphql.MusicCatalogSchema, exc, new MusicCatalogService, variables = vars, operationName = operation, deferredResolver = graphql.resolver)
+        .execute(MusicCatalogSchema, exc, new MusicCatalogService(artists), variables = vars, operationName = operation, deferredResolver = schemadefinition.resolver)
     }
 
     Either.fromTry(parsingResult.getOrElse(Failure(new Exception("lol"))))
